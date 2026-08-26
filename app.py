@@ -53,3 +53,18 @@ async def text_extractor(data: userURL):
     except Exception as e:
         return {"message": str(e)}
 
+@app.post("/query")
+async def ask_query(query: userQuery):
+    try:
+        result = user_query(query.query, query.video_id)
+        ai_responce = groq_model(query.query, result[0])
+
+        return {"message": str(ai_responce)}
+
+    except Exception as e:
+        return {"message": str(e)}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
+
