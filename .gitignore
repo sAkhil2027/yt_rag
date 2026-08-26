@@ -1,0 +1,62 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+
+chroma_db/
+
+# Environment
+.env
+.env.*
+.env.local
+
+# Logs
+logs/
+*.log
+debug.log*
+
+# Build
+dist/
+build/
+coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Python (if any)
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+env/
+/.venv/
+
+# Database
+*.sqlite3
+*.db
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Secrets
+secret-*.key
+
+# Misc
+.cache/
+coverage/
+*.tgz
+*.zip
+
+# Allow list: keep these tracked
+!/.gitignore
