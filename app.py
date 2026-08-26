@@ -42,3 +42,14 @@ async def home():
         return FileResponse(html_path, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     return {"message": "Welcome to YT Helper API"}
 
+@app.post("/youtube_url")
+@app.post("/yourube_url")
+async def text_extractor(data: userURL):
+    try:
+        result = chunk_extractor(data.url)
+        res = _chromadb_text_to_vector(result["text"], result["video_id"])
+        return res
+
+    except Exception as e:
+        return {"message": str(e)}
+
