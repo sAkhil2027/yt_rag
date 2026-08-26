@@ -659,7 +659,178 @@
     </div>
   </div>
 
+  <script>
+    let initialHeroHTML = null;
 
-</script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const hero = document.getElementById('heroWelcome');
+      if (hero) {
+        initialHeroHTML = hero.outerHTML;
+      }
+    });
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+    }
+
+    function resetChat() {
+      activeVideoId = null;
+      document.getElementById('urlInput').value = '';
+      const vCard = document.getElementById('videoCard');
+      if (vCard) vCard.style.display = 'none';
+      
+      const chatContainer = document.getElementById('chatMessages');
+      if (chatContainer && initialHeroHTML) {
+        chatContainer.innerHTML = initialHeroHTML;
+      }
+    }
+
+    async function ingestVideo() {
+      const urlInput = document.getElementById('urlInput');
+      const ingestBtn = document.getElementById('ingestBtn');
+      const url = urlInput.value.trim();
+
+      if (!url) {
+        alert("Please enter a valid YouTube URL");
+        return;
+      }
+
+      ingestBtn.disabled = true;
+      ingestBtn.innerHTML = `<div class="spinner"></div> <span>Ingesting...</span>`;
+
+      try {
+        const response = await fetch('/youtube_url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: url })
+        });
+        const data = await response.json();
+
+        if (data.video_id) {
+          activeVideoId = data.video_id;
+          const vLabel = document.getElementById('videoIdLabel');
+          if (vLabel) vLabel.innerText = activeVideoId;
+          
+          const tImg = document.getElementById('thumbImg');
+          if (tImg) tImg.src = `https://img.youtube.com/vi/${activeVideoId}/hqdefault.jpg`;
+          
+          const vCard = document.getElementById('videoCard');
+          if (vCard) vCard.style.display = 'flex';
+          
+          const hero = document.getElementById('heroWelcome');
+          if (hero) hero.style.display = 'none';
+
+          appendMessage('bot', `✅ **Video Ingested Successfully!**\n\nYouTube Video ID: \`${activeVideoId}\`\nVector embeddings generated & stored in ChromaDB. Ask your first question below!`);
+        } else {
+          alert(data.message || "Failed to ingest video.");
+        }
+      } catch (err) {
+        alert("Error connecting to server: " + err);
+      } finally {
+        ingestBtn.disabled = false;
+        ingestBtn.innerHTML = `<span>Ingest Video</span>`;
+      }
+    }
+
+    async function sendQuery() {
+      const queryInput = document.getElementById('queryInput');
+      const query = queryInput.value.trim();
+
+      if (!query) return;
+      if (!activeVideoId) {
+        alert("Please ingest a YouTube video first using the sidebar!");
+        return;
+      }
+
+      appendMessage('user', query);
+      queryInput.value = '';
+
+      const botMsgId = appendMessage('bot', 'Thinking...');
+
+      try {
+        const response = await fetch('/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: query, video_id: activeVideoId })
+        });
+        const data = await response.json();
+        updateMessage(botMsgId, data.message || "No response received.");
+      } catch (err) {
+        updateMessage(botMsgId, "Error querying API: " + err);
+      }
+    }
+
+    function appendMessage(sender, text) {
+      const hero = document.getElementById('heroWelcome');
+      if (hero) hero.style.display = 'none';
+      const container = document.getElementById('chatMessages');
+      const msgId = 'msg-' + Date.now();
+
+      const row = document.createElement('div');
+      row.className = `msg-row ${sender}`;
+      row.id = msgId;
+
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      avatar.innerText = sender === 'user' ? 'U' : 'YT';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+
+      if (sender === 'bot') {
+        bubble.innerHTML = marked.parse(text);
+        const actions = document.createElement('div');
+        actions.className = 'msg-actions';
+        actions.innerHTML = `<button class="action-btn" onclick="copyText(this)">📋 Copy Response</button>`;
+        bubble.appendChild(actions);
+      } else {
+        bubble.innerText = text;
+      }
+
+      row.appendChild(avatar);
+      row.appendChild(bubble);
+      container.appendChild(row);
+      container.scrollTop = container.scrollHeight;
+
+      return msgId;
+    }
+
+    function updateMessage(msgId, text) {
+      const row = document.getElementById(msgId);
+      if (row) {
+        const bubble = row.querySelector('.bubble');
+        bubble.innerHTML = marked.parse(text);
+        
+        const actions = document.createElement('div');
+        actions.className = 'msg-actions';
+        actions.innerHTML = `<button class="action-btn" onclick="copyText(this)">📋 Copy Response</button>`;
+        bubble.appendChild(actions);
+
+        hljs.highlightAll();
+        const container = document.getElementById('chatMessages');
+        container.scrollTop = container.scrollHeight;
+      }
+    }
+
+    function copyText(btn) {
+      const text = btn.parentElement.parentElement.innerText.replace('📋 Copy Response', '').trim();
+      navigator.clipboard.writeText(text).then(() => {
+        btn.innerText = '✅ Copied!';
+        setTimeout(() => { btn.innerText = '📋 Copy Response'; }, 2000);
+      });
+    }
+
+    function useSuggestion(text) {
+      document.getElementById('queryInput').value = text;
+      sendQuery();
+    }
+
+    function handleKeyDown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendQuery();
+      }
+    }
+  </script>
 </body>
 </html>
