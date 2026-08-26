@@ -17,3 +17,13 @@ class userQuery(BaseModel):
     query: str
     video_id: str
 
+from fastapi.staticfiles import StaticFiles
+
+app = FastAPI(
+    title="YT Helper API",
+    description="""
+    YT Helper RAG API and AI Chatbot for YouTube Videos. Ask questions about any YouTube video without watching the full video.
+    """,
+    version="1.0.0"
+)
+
