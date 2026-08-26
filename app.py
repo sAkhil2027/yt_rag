@@ -27,3 +27,18 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Mount static folder
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+@app.get("/")
+async def home():
+    """
+    Serves the interactive YT Helper Chatbot UI with caching disabled for instant updates.
+    """
+    html_path = os.path.join(static_dir, "index.html")
+    if os.path.exists(html_path):
+        return FileResponse(html_path, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+    return {"message": "Welcome to YT Helper API"}
+
