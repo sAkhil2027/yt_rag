@@ -1,0 +1,23 @@
+# Core Web Framework
+fastapi>=0.100.0
+uvicorn[standard]>=0.20.0
+pydantic>=2.0.0
+
+# Environment & Config
+python-dotenv>=1.0.0
+
+# Data Extraction & Chunking
+youtube-transcript-api>=0.6.0
+langchain-text-splitters>=0.0.1
+
+# AI, Vector DB & Embeddings
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+torch>=2.0.0
+google-genai>=0.1.0
+
+# LLM Inference (Groq API)
+groq>=0.4.0
+
+# Model Context Protocol (MCP Server)
+mcp>=1.0.0
