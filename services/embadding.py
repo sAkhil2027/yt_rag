@@ -36,3 +36,51 @@ def _gemini_text_to_vector(document: str):
 
     return embaddings
 
+def _chromadb_text_to_vector(document: str, video_id: str):
+    print(f"Storing embeddings for Video ID: {video_id} (Full transcript length: {len(document)} chars)")
+
+    client = chromadb.PersistentClient(path="./chroma_db")
+    
+    # Delete existing collection if re-ingesting to clear stale tiny chunks
+    try:
+        client.delete_collection(name=f"{video_id}")
+    except Exception:
+        pass
+
+    collection = client.get_or_create_collection(name=f"{video_id}")
+
+    try:
+        # Optimal RAG chunks: 800 chars with 150 overlap for complete thoughts
+        text_split = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
+        chunks = text_split.split_text(document)
+
+        print(f"Generated {len(chunks)} chunks for video_id {video_id}")
+
+        # generate embedding lazily
+        model = get_model()
+        embadding = model.encode(chunks).tolist()
+
+        # generate ids
+        ids = [f"{video_id}_chunk{i}" for i in range(len(chunks))]
+
+        # metadata
+        metadata = [{
+            "video_id": video_id,
+            "chunk_number": i
+        } for i in range(len(chunks))]
+
+        # store data in chromaDB
+        collection.add(
+            ids=ids,
+            documents=chunks,
+            embeddings=embadding,
+            metadatas=metadata
+        )
+
+        return {
+            "message": f"[SUCCESS] {len(chunks)} chunks stored successfully across complete video transcript!",
+            "video_id": video_id,
+            "total_chunks": len(chunks)
+        }
+    except Exception as e:
+        raise Exception(f"error: {e}")
