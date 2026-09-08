@@ -1,0 +1,48 @@
+# Environment & Secrets
+.env
+.env.*
+.env.local
+secret-*.key
+
+# Vector Database & SQLite
+chroma_db/
+*.sqlite3
+*.db
+
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Logs
+logs/
+*.log
+debug.log*
+
+# Node / Frontend Artifacts
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+package-lock.json
+
+# IDE & Editor Configs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
+
+# OS Generated
+.DS_Store
+Thumbs.db
