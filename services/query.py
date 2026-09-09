@@ -1,9 +1,16 @@
 import chromadb
-from services.embadding import get_gemini_embedding, get_chroma_path
+from services.embadding import get_gemini_embedding, get_chroma_path, get_collection_name
 
 def user_query(user_input: str, video_id: str) -> list:
     client = chromadb.PersistentClient(path=get_chroma_path())
-    collection = client.get_collection(video_id)
+    collection_name = get_collection_name(video_id)
+    try:
+        collection = client.get_collection(name=collection_name)
+    except Exception:
+        try:
+            collection = client.get_collection(name=video_id)
+        except Exception:
+            raise ValueError(f"No transcript found for Video ID '{video_id}'. Please ingest first.")
     try:
         query_embeddings = get_gemini_embedding(user_input, task_type="RETRIEVAL_QUERY")[0]
         results = collection.query(query_embeddings=[query_embeddings], n_results=7)
