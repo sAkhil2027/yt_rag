@@ -1,27 +1,14 @@
 import chromadb
-from services.embadding import get_gemini_embedding
+from services.embadding import get_gemini_embedding, get_chroma_path
 
-def user_query(user_niput: str, video_id: str):
-    # connect to local DB
-    client = chromadb.PersistentClient(path="./chroma_db")
+def user_query(user_input: str, video_id: str) -> list:
+    client = chromadb.PersistentClient(path=get_chroma_path())
     collection = client.get_collection(video_id)
-
     try:
-        query_embaddings = get_gemini_embedding(user_niput)[0]
-
-        # Retrieve top 7 most relevant 800-char chunks across the entire video transcript
-        results = collection.query(
-            query_embeddings=[query_embaddings],
-            n_results=7
-        )
-        
-        raw_documents = results["documents"][0] if results and "documents" in results and results["documents"] else []
-        
-        # Combine retrieved chunks into a cohesive context block
+        query_embeddings = get_gemini_embedding(user_input, task_type="RETRIEVAL_QUERY")[0]
+        results = collection.query(query_embeddings=[query_embeddings], n_results=7)
+        raw_documents = results.get("documents", [[]])[0] if results else []
         combined_context = "\n\n---\n\n".join(raw_documents)
-        print(f"Retrieved {len(raw_documents)} transcript chunks ({len(combined_context)} chars) for query: '{user_niput}'")
-
         return [combined_context]
-
     except Exception as e:
-        raise Exception(f"error: {e}")
+        raise Exception(f"Vector search failed: {e}")
