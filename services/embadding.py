@@ -30,11 +30,19 @@ def get_gemini_embedding(
     config = types.EmbedContentConfig(task_type=task_type)
     for i in range(0, len(items), batch_size):
         batch = items[i:i + batch_size]
-        try:
-            response = client.models.embed_content(model="gemini-embedding-001", contents=batch, config=config)
-        except Exception:
-            response = client.models.embed_content(model="text-embedding-004", contents=batch, config=config)
-        for emb in response.embeddings:
+        candidate_models = ["gemini-embedding-001", "text-embedding-004", "gemini-embedding-exp-03-07", "gemini-embedding-2"]
+        batch_response = None
+        last_error = None
+        for model_name in candidate_models:
+            try:
+                batch_response = client.models.embed_content(model=model_name, contents=batch, config=config)
+                break
+            except Exception as e:
+                last_error = e
+                continue
+        if batch_response is None:
+            raise RuntimeError(f"All Gemini embedding models failed: {last_error}")
+        for emb in batch_response.embeddings:
             embeddings.append(emb.values)
     return embeddings
 
