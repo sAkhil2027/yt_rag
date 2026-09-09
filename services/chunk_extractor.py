@@ -14,7 +14,7 @@ def get_transcript_api() -> YouTubeTranscriptApi:
     return YouTubeTranscriptApi()
 
 def extract_video_id(url: str) -> str:
-    pattern = r"(?:v=|\/embed\/|youtu\.be\/|\/v\/|^)([0-9A-Za-z_-]{11})"
+    pattern = r"(?:v=|\/embed\/|\/shorts\/|youtu\.be\/|\/v\/|^)([0-9A-Za-z_-]{11})"
     match = re.search(pattern, url)
     if match:
         return match.group(1)
