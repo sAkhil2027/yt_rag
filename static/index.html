@@ -12,6 +12,8 @@
   <!-- Highlight.js for Syntax Highlighting -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <!-- Optional Frontend API Configuration for Vercel -->
+  <script src="config.js"></script>
 
   <style>
     :root {
@@ -276,6 +278,202 @@
 
     .top-link:hover {
       color: #ffffff;
+    }
+
+    .api-settings-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: #e2e8f0;
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .api-settings-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: #a855f7;
+      color: #ffffff;
+    }
+
+    .status-indicator-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      display: inline-block;
+      transition: background 0.3s ease;
+    }
+
+    .status-indicator-dot.offline {
+      background: #ef4444;
+    }
+
+    .status-indicator-dot.checking {
+      background: #f59e0b;
+    }
+
+    /* Backend Settings Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #111827;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      width: 90%;
+      max-width: 480px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: modalFadeIn 0.2s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: #ffffff;
+    }
+
+    .modal-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .modal-input {
+      background: #1f2937;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #ffffff;
+      font-size: 0.9rem;
+      width: 100%;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease;
+    }
+
+    .modal-input:focus {
+      border-color: #a855f7;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .btn-modal-sec {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: #ffffff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-modal-sec:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .btn-modal-prim {
+      background: var(--accent-gradient);
+      border: none;
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px var(--glow-purple);
+      transition: transform 0.2s ease;
+    }
+
+    .btn-modal-prim:hover {
+      transform: scale(1.02);
+    }
+
+    .status-banner {
+      font-size: 0.82rem;
+      padding: 9px 13px;
+      border-radius: 8px;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .status-banner.success {
+      display: block;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+    }
+
+    .status-banner.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #f87171;
+    }
+
+    .status-banner.info {
+      display: block;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      color: #60a5fa;
     }
 
     /* Chat Messages Canvas */
@@ -613,7 +811,13 @@
         <div class="model-badge">⚡ Groq Llama 3.3 70B • RAG Vector DB</div>
       </div>
 
-      <a href="/docs" target="_blank" class="top-link">FastAPI Docs ↗</a>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button id="apiSettingsBtn" class="api-settings-btn" onclick="openApiModal()" title="Configure Backend API URL">
+          <span id="apiStatusDot" class="status-indicator-dot"></span>
+          <span>API Config</span>
+        </button>
+        <a id="docsLink" href="/docs" target="_blank" class="top-link">FastAPI Docs ↗</a>
+      </div>
     </div>
 
     <!-- Messages Canvas -->
@@ -659,14 +863,178 @@
     </div>
   </div>
 
+  <!-- Backend API Settings Modal -->
+  <div id="apiModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>⚙️ Backend API Configuration</span>
+        </div>
+        <button class="modal-close" onclick="closeApiModal()">&times;</button>
+      </div>
+      <p class="modal-desc">
+        Connect this frontend to your deployed <strong>Render Backend Web Service</strong>. If running locally or on the same host, you can leave this as default.
+      </p>
+      <div>
+        <label style="font-size: 0.82rem; font-weight: 600; color: #94a3b8; display: block; margin-bottom: 6px;">Render API Base URL</label>
+        <input type="text" id="apiEndpointInput" class="modal-input" placeholder="https://your-app-name.onrender.com" />
+      </div>
+      <div id="apiStatusBanner" class="status-banner"></div>
+      <div class="modal-actions">
+        <button class="btn-modal-sec" onclick="testApiConnection()">Ping / Health Check</button>
+        <button class="btn-modal-sec" onclick="resetApiUrl()">Reset Default</button>
+        <button class="btn-modal-prim" onclick="saveApiUrl()">Save & Connect</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    let activeVideoId = null;
     let initialHeroHTML = null;
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const hero = document.getElementById('heroWelcome');
-      if (hero) {
-        initialHeroHTML = hero.outerHTML;
+    // Resolve Backend API Base URL
+    function getApiBaseUrl() {
+      // 1. User configured custom URL in localStorage
+      const saved = localStorage.getItem('YT_BACKEND_URL');
+      if (saved && saved.trim()) return saved.trim().replace(/\/+$/, '');
+
+      // 2. config.js window.CONFIG
+      if (window.CONFIG && window.CONFIG.API_BASE_URL && window.CONFIG.API_BASE_URL.trim()) {
+        return window.CONFIG.API_BASE_URL.trim().replace(/\/+$/, '');
       }
+      if (window.ENV_BACKEND_URL && window.ENV_BACKEND_URL.trim()) {
+        return window.ENV_BACKEND_URL.trim().replace(/\/+$/, '');
+      }
+
+      // 3. Fallback to origin
+      return window.location.origin;
+    }
+
+    // Health check & visual connection indicator
+    async function checkBackendHealth() {
+      const base = getApiBaseUrl();
+      const dot = document.getElementById('apiStatusDot');
+      const docsLink = document.getElementById('docsLink');
+      if (docsLink) docsLink.href = `${base}/docs`;
+      if (dot) dot.className = 'status-indicator-dot checking';
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
+        const res = await fetch(`${base}/health`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          if (dot) dot.className = 'status-indicator-dot';
+          return true;
+        } else {
+          if (dot) dot.className = 'status-indicator-dot offline';
+          return false;
+        }
+      } catch (e) {
+        if (dot) dot.className = 'status-indicator-dot offline';
+        // Auto-prompt on Vercel if not yet configured
+        if (window.location.hostname.includes('vercel.app') && !localStorage.getItem('YT_BACKEND_URL') && (!window.CONFIG || !window.CONFIG.API_BASE_URL)) {
+          setTimeout(() => openApiModal(true), 500);
+        }
+        return false;
+      }
+    }
+
+    function openApiModal(isWelcome = false) {
+      const modal = document.getElementById('apiModal');
+      const input = document.getElementById('apiEndpointInput');
+      const banner = document.getElementById('apiStatusBanner');
+      input.value = localStorage.getItem('YT_BACKEND_URL') || (window.CONFIG && window.CONFIG.API_BASE_URL) || '';
+
+      if (isWelcome) {
+        banner.className = 'status-banner info';
+        banner.innerText = '👋 Welcome to YT Helper! Please paste your deployed Render Backend URL below to connect this Vercel frontend.';
+      } else {
+        banner.className = 'status-banner';
+        banner.style.display = 'none';
+      }
+      modal.classList.add('active');
+    }
+
+    function closeApiModal() {
+      document.getElementById('apiModal').classList.remove('active');
+    }
+
+    async function testApiConnection() {
+      const input = document.getElementById('apiEndpointInput');
+      const banner = document.getElementById('apiStatusBanner');
+      let target = input.value.trim().replace(/\/+$/, '');
+      if (!target) target = window.location.origin;
+
+      banner.className = 'status-banner info';
+      banner.innerText = `Testing connection to ${target}/health ...`;
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const res = await fetch(`${target}/health`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const data = await res.json();
+          banner.className = 'status-banner success';
+          banner.innerText = `✅ Connected! Status: ${data.status || 'OK'}`;
+        } else {
+          banner.className = 'status-banner error';
+          banner.innerText = `❌ Server returned HTTP ${res.status}`;
+        }
+      } catch (e) {
+        banner.className = 'status-banner error';
+        banner.innerText = `❌ Connection error: ${e.message}. Note: On Render free tier, an inactive service may take ~50 seconds to boot up.`;
+      }
+    }
+
+    function saveApiUrl() {
+      const input = document.getElementById('apiEndpointInput');
+      const banner = document.getElementById('apiStatusBanner');
+      const val = input.value.trim().replace(/\/+$/, '');
+
+      if (val) {
+        localStorage.setItem('YT_BACKEND_URL', val);
+      } else {
+        localStorage.removeItem('YT_BACKEND_URL');
+      }
+
+      banner.className = 'status-banner success';
+      banner.innerText = '✅ Saved! Refreshing connection...';
+      setTimeout(() => {
+        closeApiModal();
+        checkBackendHealth();
+      }, 700);
+    }
+
+    function resetApiUrl() {
+      localStorage.removeItem('YT_BACKEND_URL');
+      document.getElementById('apiEndpointInput').value = '';
+      const banner = document.getElementById('apiStatusBanner');
+      banner.className = 'status-banner info';
+      banner.innerText = 'Reset to default host origin.';
+      setTimeout(() => {
+        closeApiModal();
+        checkBackendHealth();
+      }, 700);
+    }
+
+    // Close modal on background overlay click
+    document.addEventListener('DOMContentLoaded', () => {
+      const hero = document.getElementById('heroWelcome');
+      if (hero) initialHeroHTML = hero.outerHTML;
+
+      const modal = document.getElementById('apiModal');
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeApiModal();
+        });
+      }
+
+      // Check backend health
+      checkBackendHealth();
     });
 
     function toggleSidebar() {
@@ -685,6 +1053,78 @@
       }
     }
 
+    function extractVideoIdClient(url) {
+      const match = url.match(/(?:v=|\/embed\/|\/shorts\/|youtu\.be\/|\/v\/|^)([0-9A-Za-z_-]{11})/);
+      return match ? match[1] : (url.trim().length === 11 ? url.trim() : null);
+    }
+
+    function handleIngestSuccess(videoId) {
+      activeVideoId = videoId;
+      const vLabel = document.getElementById('videoIdLabel');
+      if (vLabel) vLabel.innerText = activeVideoId;
+      
+      const tImg = document.getElementById('thumbImg');
+      if (tImg) tImg.src = `https://img.youtube.com/vi/${activeVideoId}/hqdefault.jpg`;
+      
+      const vCard = document.getElementById('videoCard');
+      if (vCard) vCard.style.display = 'flex';
+      
+      const hero = document.getElementById('heroWelcome');
+      if (hero) hero.style.display = 'none';
+
+      appendMessage('bot', `✅ **Video Ingested Successfully!**\n\nYouTube Video ID: \`${activeVideoId}\`\nVector embeddings generated & stored in ChromaDB. Ask your first question below!`);
+    }
+
+    async function attemptClientSideIngest(url) {
+      const videoId = extractVideoIdClient(url);
+      if (!videoId) return false;
+
+      const mirrors = [
+        `https://inv.nadeko.net/api/v1/captions/${videoId}`,
+        `https://invidious.nerdvpn.de/api/v1/captions/${videoId}`,
+        `https://yewtu.be/api/v1/captions/${videoId}`
+      ];
+
+      for (const mirrorUrl of mirrors) {
+        try {
+          const resp = await fetch(mirrorUrl);
+          if (!resp.ok) continue;
+          const data = await resp.json();
+          const captions = data.captions || [];
+          if (!captions.length) continue;
+
+          const chosen = captions.find(c => ['en', 'hi', 'es', 'fr', 'de'].includes(c.languageCode)) || captions[0];
+          const origin = new URL(mirrorUrl).origin;
+          const trackResp = await fetch(origin + chosen.url);
+          if (!trackResp.ok) continue;
+          const vtt = await trackResp.text();
+
+          const cleanLines = [];
+          vtt.split('\n').forEach(line => {
+            line = line.trim();
+            if (!line || line.includes('-->') || line.startsWith('WEBVTT') || /^\d+$/.test(line)) return;
+            cleanLines.push(line);
+          });
+          const fullText = cleanLines.join(' ');
+          if (fullText.length < 50) continue;
+
+          const ingestResp = await fetch(`${getApiBaseUrl()}/ingest_transcript`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ video_id: videoId, text: fullText })
+          });
+          const ingestData = await ingestResp.json();
+          if (ingestData.video_id) {
+            handleIngestSuccess(ingestData.video_id);
+            return true;
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+      return false;
+    }
+
     async function ingestVideo() {
       const urlInput = document.getElementById('urlInput');
       const ingestBtn = document.getElementById('ingestBtn');
@@ -699,7 +1139,7 @@
       ingestBtn.innerHTML = `<div class="spinner"></div> <span>Ingesting...</span>`;
 
       try {
-        const response = await fetch('/youtube_url', {
+        const response = await fetch(`${getApiBaseUrl()}/youtube_url`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: url })
@@ -707,25 +1147,18 @@
         const data = await response.json();
 
         if (data.video_id) {
-          activeVideoId = data.video_id;
-          const vLabel = document.getElementById('videoIdLabel');
-          if (vLabel) vLabel.innerText = activeVideoId;
-          
-          const tImg = document.getElementById('thumbImg');
-          if (tImg) tImg.src = `https://img.youtube.com/vi/${activeVideoId}/hqdefault.jpg`;
-          
-          const vCard = document.getElementById('videoCard');
-          if (vCard) vCard.style.display = 'flex';
-          
-          const hero = document.getElementById('heroWelcome');
-          if (hero) hero.style.display = 'none';
-
-          appendMessage('bot', `✅ **Video Ingested Successfully!**\n\nYouTube Video ID: \`${activeVideoId}\`\nVector embeddings generated & stored in ChromaDB. Ask your first question below!`);
+          handleIngestSuccess(data.video_id);
+        } else if (data.message && (data.message.includes("blocked") || data.message.includes("IP"))) {
+          ingestBtn.innerHTML = `<div class="spinner"></div> <span>Retrying via browser...</span>`;
+          const recovered = await attemptClientSideIngest(url);
+          if (!recovered) {
+            alert(data.message);
+          }
         } else {
           alert(data.message || "Failed to ingest video.");
         }
       } catch (err) {
-        alert("Error connecting to server: " + err);
+        alert("Error connecting to server: " + err + "\n\nTip: Check if your Render backend is awake via the 'API Config' button.");
       } finally {
         ingestBtn.disabled = false;
         ingestBtn.innerHTML = `<span>Ingest Video</span>`;
@@ -748,7 +1181,7 @@
       const botMsgId = appendMessage('bot', 'Thinking...');
 
       try {
-        const response = await fetch('/query_stream', {
+        const response = await fetch(`${getApiBaseUrl()}/query_stream`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query: query, video_id: activeVideoId })
