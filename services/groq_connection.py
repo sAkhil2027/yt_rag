@@ -11,19 +11,28 @@ def get_groq_api_keys() -> list[str]:
 
 def groq_model_stream(prompt: str, chunk_list: list):
     api_keys = get_groq_api_keys()
-    client = Groq(api_key=api_keys[0])
-    stream = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+    candidate_models = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768", "gemma2-9b-it"]
+    for api_key in api_keys:
+        client = Groq(api_key=api_key)
+        for model_name in candidate_models:
+            try:
+                stream = client.chat.completions.create(
+                    model=model_name,
         messages=[
             {"role": "system", "content": "You are YT Helper, a helpful assistant."},
             {"role": "user", "content": f"User question: {prompt}\n\nVideo context: {chunk_list}"}
         ],
         stream=True
     )
-    for chunk in stream:
-        delta = chunk.choices[0].delta.content
-        if delta:
-            yield delta
+                    stream=True
+                )
+                for chunk in stream:
+                    delta = chunk.choices[0].delta.content
+                    if delta:
+                        yield delta
+                return
+            except Exception:
+                continue
 
 def groq_model(prompt: str, chunk_list: list) -> str:
     return "".join(groq_model_stream(prompt, chunk_list))
