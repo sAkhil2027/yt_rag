@@ -16,6 +16,10 @@ from services.embadding import _chromadb_text_to_vector
 class userURL(BaseModel):
     url: str
 
+class userTranscript(BaseModel):
+    video_id: str
+    text: str
+
 class userQuery(BaseModel):
     query: str
     video_id: str
@@ -67,6 +71,13 @@ async def home():
     if os.path.exists(html_path):
         return FileResponse(html_path)
     return {"message": "Welcome to YT Helper API"}
+
+@app.post("/ingest_transcript")
+async def ingest_direct_transcript(data: userTranscript):
+    try:
+        return _chromadb_text_to_vector(data.text, data.video_id)
+    except Exception as e:
+        return {"message": str(e)}
 
 @app.post("/youtube_url")
 async def text_extractor(data: userURL):
