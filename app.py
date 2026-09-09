@@ -1,4 +1,7 @@
 import os
+import asyncio
+import urllib.request
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -17,7 +20,27 @@ class userQuery(BaseModel):
     query: str
     video_id: str
 
-app = FastAPI(title="YT Helper API", version="1.0.0")
+async def render_keep_alive():
+    render_url = os.getenv("RENDER_EXTERNAL_URL")
+    if not render_url:
+        return
+    health_url = f"{render_url.rstrip('/')}/health"
+    while True:
+        await asyncio.sleep(720)
+        try:
+            req = urllib.request.Request(health_url, headers={"User-Agent": "Render-KeepAlive/1.0"})
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                pass
+        except Exception:
+            pass
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    heartbeat_task = asyncio.create_task(render_keep_alive())
+    yield
+    heartbeat_task.cancel()
+
+app = FastAPI(title="YT Helper API", version="1.0.0", lifespan=lifespan)
 
 cors_origins_raw = os.getenv("CORS_ORIGINS", "*")
 cors_origins = ["*"] if cors_origins_raw.strip() == "*" else [o.strip() for o in cors_origins_raw.split(",") if o.strip()]
