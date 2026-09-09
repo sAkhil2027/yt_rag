@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "routes": [
+    {
+      "src": "/config.js",
+      "dest": "/frontend/config.js",
+      "headers": {
+        "cache-control": "no-cache, no-store, must-revalidate"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/index.html",
+      "headers": {
+        "cache-control": "no-cache, no-store, must-revalidate"
+      }
+    }
+  ]
+}
