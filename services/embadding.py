@@ -56,6 +56,10 @@ def get_collection_name(video_id: str) -> str:
 def _chromadb_text_to_vector(document: str, video_id: str):
     client = chromadb.PersistentClient(path=get_chroma_path())
     collection_name = get_collection_name(video_id)
+    try:
+        client.delete_collection(name=collection_name)
+    except Exception:
+        pass
     collection = client.get_or_create_collection(name=collection_name)
     text_split = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
     chunks = text_split.split_text(document)
