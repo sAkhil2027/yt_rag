@@ -50,9 +50,13 @@ def get_chroma_path() -> str:
     default_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chroma_db")
     return os.getenv("CHROMA_PERSIST_DIR", default_dir)
 
+def get_collection_name(video_id: str) -> str:
+    return f"vid_{video_id}".replace("-", "_")
+
 def _chromadb_text_to_vector(document: str, video_id: str):
     client = chromadb.PersistentClient(path=get_chroma_path())
-    collection = client.get_or_create_collection(name=f"{video_id}")
+    collection_name = get_collection_name(video_id)
+    collection = client.get_or_create_collection(name=collection_name)
     text_split = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
     chunks = text_split.split_text(document)
     embeddings = get_gemini_embedding(chunks)
