@@ -46,8 +46,12 @@ def get_gemini_embedding(
             embeddings.append(emb.values)
     return embeddings
 
+def get_chroma_path() -> str:
+    default_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chroma_db")
+    return os.getenv("CHROMA_PERSIST_DIR", default_dir)
+
 def _chromadb_text_to_vector(document: str, video_id: str):
-    client = chromadb.PersistentClient(path="./chroma_db")
+    client = chromadb.PersistentClient(path=get_chroma_path())
     collection = client.get_or_create_collection(name=f"{video_id}")
     text_split = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
     chunks = text_split.split_text(document)
