@@ -56,6 +56,15 @@ def fetch_via_invidious(video_id: str) -> str:
 def chunk_extractor(url: str) -> dict:
     video_id = extract_video_id(url)
     api = get_transcript_api()
-    fetched_data = api.fetch(video_id, languages=['en', 'hi'])
+    target_languages = ['en', 'hi', 'es', 'fr', 'de']
+    try:
+        transcript_list = api.list(video_id)
+        try:
+            transcript = transcript_list.find_manually_created_transcript(target_languages)
+        except Exception:
+            transcript = transcript_list.find_generated_transcript(target_languages)
+        fetched_data = transcript.fetch()
+    except Exception:
+        fetched_data = api.fetch(video_id, languages=target_languages)
     response_text = " ".join(line.text if hasattr(line, 'text') else line['text'] for line in fetched_data)
     return {"text": response_text, "video_id": video_id}
