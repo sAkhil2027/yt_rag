@@ -1,3 +1,13 @@
+---
+title: YT Helper - YouTube AI RAG Chatbot
+emoji: 🎬
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 <div align="center">
 
 # 🎬 YT Helper — YouTube AI RAG Chatbot & API
@@ -5,7 +15,7 @@
 ### Ask questions about any YouTube video without watching the entire video.
 
 <p>
-  <strong>YouTube URL → Transcript Extraction → 800-Char Chunking → SentenceTransformers → ChromaDB → Context Retrieval → Groq Llama 3.3 70B</strong>
+  <strong>YouTube URL → Transcript Extraction → 800-Char Chunking → Google Gemini Embeddings → ChromaDB → Context Retrieval → Groq Llama 3.3 70B</strong>
 </p>
 
 <br>
@@ -14,7 +24,7 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![Groq](https://img.shields.io/badge/Groq_Cloud-Llama_3.3_70B-F55036?style=for-the-badge&logo=meta&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-FF6F61?style=for-the-badge)
-![SentenceTransformers](https://img.shields.io/badge/SentenceTransformers-all--MiniLM--L6--v2-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)
+![Google Gemini](https://img.shields.io/badge/Google_Gemini-Embeddings-4285F4?style=for-the-badge&logo=google&logoColor=white)
 ![MCP](https://img.shields.io/badge/FastMCP-AI_Agent_Server-8A2BE2?style=for-the-badge)
 
 <br>
@@ -32,7 +42,7 @@
 
 **YT Helper** is a high-performance Retrieval-Augmented Generation (RAG) system and interactive web application that enables users to chat with any YouTube video. 
 
-By extracting 100% of available spoken transcript text, vectorizing it into a local **ChromaDB** database using **SentenceTransformers**, and querying **Groq Cloud's Llama 3.3 70B** model, YT Helper provides instant, grounded answers with timestamps and topic breakdowns in seconds.
+By extracting 100% of available spoken transcript text, vectorizing it into a local **ChromaDB** database using **Google Gemini Embeddings**, and querying **Groq Cloud's Llama 3.3 70B** model, YT Helper provides instant, grounded answers with timestamps and topic breakdowns in seconds.
 
 ```text
 🎥 YouTube Video URL
@@ -44,7 +54,7 @@ By extracting 100% of available spoken transcript text, vectorizing it into a lo
 ✂️ Semantic Chunker (800 chars / 150 overlap)
        │
        ▼
-🧠 Dense Vector Embeddings (all-MiniLM-L6-v2)
+🧠 Dense Vector Embeddings (gemini-embedding-001 / text-embedding-004)
        │
        ▼
 🗄️ Persistent ChromaDB Vector Store
@@ -67,7 +77,7 @@ By extracting 100% of available spoken transcript text, vectorizing it into a lo
 | :--- | :--- | :--- |
 | **🎥 Full Transcript Ingestion** | `YouTubeTranscriptApi` | Downloads 100% of spoken transcript text across manual and auto-generated tracks (`en`, `hi`, `es`, `fr`, `de`). |
 | **✂️ Optimal RAG Chunking** | `RecursiveCharacterTextSplitter` | Splits long transcripts into 800-character semantic chunks with 150-character overlap to preserve sentence context. |
-| **🧠 Local Dense Embeddings** | `all-MiniLM-L6-v2` | Generates 384-dimensional dense vectors locally using SentenceTransformers. |
+| **🧠 Dense Vector Embeddings** | `Google Gemini Embeddings` | Generates high-dimension semantic vectors via Google Gemini API (`gemini-embedding-001` / `text-embedding-004`). |
 | **🗄️ Persistent Vector Store** | `ChromaDB` | Stores indexed vector chunks locally under named collections per YouTube video ID. |
 | **🔎 Rich Context Retrieval** | Cosine Similarity Search | Retrieves the top **7 most relevant chunks (~5,600 characters)** matching user questions. |
 | **⚡ High-Speed LLM Inference** | `Groq Cloud API` | Powered by Groq's ultra-fast LPU engine running **`llama-3.3-70b-versatile`**. |
@@ -84,19 +94,38 @@ Tube-AI-API/
 ├── mcp_server.py              # FastMCP server for AI agent integrations
 ├── config.py                  # Environment variable configuration loader
 ├── requirements.txt           # Python dependencies manifest
+├── render.yaml                # Render Blueprint deployment specification
+├── vercel.json                # Vercel root deployment routing
+├── DEPLOYMENT.md              # Step-by-step Render & Vercel deployment guide
 ├── README.md                  # Complete project documentation
+├── .env.example               # Template environment variables
 ├── .gitignore                 # Git security and exclusion rules
 │
 ├── services/                  # Backend RAG Core Pipeline Services
 │   ├── __init__.py
 │   ├── chunk_extractor.py     # YouTube transcript extraction service
-│   ├── embadding.py           # Text splitter & ChromaDB vector manager
+│   ├── embadding.py           # Text splitter & Gemini/ChromaDB vector manager
 │   ├── query.py               # Vector similarity search engine
 │   └── groq_connection.py     # Groq Cloud API LLM service
 │
-└── static/                    # Frontend User Interface
-    └── index.html             # Responsive dark-mode Chatbot UI
+├── frontend/                  # Standalone Frontend (Vercel Ready)
+│   ├── index.html             # Responsive dark-mode Chatbot UI
+│   ├── config.js              # Frontend API configuration
+│   └── vercel.json            # Vercel rewrite configuration
+│
+└── static/                    # FastAPI Embedded Static UI
+    ├── index.html             # Embedded Chatbot UI
+    └── config.js              # Embedded API config
 ```
+
+---
+
+## 🚀 Cloud Deployment
+
+Ready to deploy to production? Check out our complete step-by-step guide:
+👉 **[DEPLOYMENT.md](DEPLOYMENT.md)**
+* **Backend on Render**: One-click free deployment via `render.yaml`.
+* **Frontend on Vercel**: Zero-config deployment from `/frontend` or repository root.
 
 ---
 
@@ -129,11 +158,15 @@ pip install -r requirements.txt
 ```
 
 ### 5. Configure Environment Variables
-Create a `.env` file in the root directory:
+Copy `.env.example` to `.env`:
 ```env
+# Groq Cloud API Key (Required for Llama 3.3 70B inference)
 GROQ_API_KEY=your_groq_api_key_here
+
+# Google Gemini API Key (Required for vector embeddings)
+GOOGLE_API_KEY=your_google_api_key_here
 ```
-> *(Get your free high-speed API key at [Groq Console](https://console.groq.com/))*
+> *(Get your free keys at [Groq Console](https://console.groq.com/) and [Google AI Studio](https://aistudio.google.com/))*
 
 ---
 

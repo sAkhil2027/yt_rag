@@ -20,7 +20,7 @@ This document provides a line-by-line, comprehensive mathematical breakdown of t
 
 | Metric | Typical Value | Notes |
 | :--- | :--- | :--- |
-| **Ingestion Token Cost** | **0 API Tokens** ($0.00) | Handled locally via SentenceTransformers |
+| **Ingestion Token Cost** | **0 LLM Tokens** ($0.00 free tier) | Handled via Google Gemini Embeddings API (free tier) |
 | **Vector Search Cost** | **0 API Tokens** ($0.00) | Handled locally in ChromaDB |
 | **Input Tokens (Prompt + Context)** | **~1,450 – 1,600 tokens** | Top 7 chunks (800 chars each) + prompt |
 | **Output Tokens (LLM Response)** | **~200 – 450 tokens** | 1 to 3 paragraphs |
@@ -38,20 +38,21 @@ When a user calls `/youtube_url`:
    - **Cost: 0 API tokens / $0.00**.
 2. **services/embadding.py**:
    - Splits text using `RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)`.
-   - Generates embeddings locally using `SentenceTransformer("all-MiniLM-L6-v2")` running directly on your CPU/GPU.
-   - Stores vectors directly into local ChromaDB (`./chroma_db`).
-   - **Cost: 0 API tokens / $0.00**.
+   - Generates embeddings using **Google Gemini Embeddings** (`gemini-embedding-001` / `text-embedding-004`).
+   - Uses Google AI Studio's free tier (1,500 requests per minute at $0.00 cost).
+   - Stores vectors directly into persistent ChromaDB (`./chroma_db`).
+   - **Cost: $0.00 (Free Tier)**.
 
-> 💡 **Takeaway:** Ingesting a video of **any length** (5 minutes, 1 hour, or 4 hours) costs **0 API tokens** and does not use any cloud LLM quota.
+> 💡 **Takeaway:** Ingesting a video does not consume any Groq LLM tokens and operates entirely within Google's free embedding quota.
 
 ---
 
 ## 3. Vector Search Stage (ChromaDB)
 
 When a query is submitted:
-1. `services/query.py` encodes the user question with `SentenceTransformer`.
-   - Performed locally.
-   - **Cost: 0 API tokens**.
+1. `services/query.py` encodes the user question using Google Gemini query embedding (`RETRIEVAL_QUERY`).
+   - Handled via Gemini API free tier.
+   - **Cost: 0 Groq LLM tokens**.
 2. ChromaDB queries cosine similarity and retrieves the **top 7 chunks**:
    - Each chunk has a target size of **800 characters** with 150-character overlap.
    - 7 chunks × ~800 characters = **~5,600 characters of raw context**.
