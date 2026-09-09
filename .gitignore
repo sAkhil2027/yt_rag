@@ -1,6 +1,7 @@
 # Environment & Secrets
 .env
 .env.*
+!.env.example
 .env.local
 secret-*.key
 
@@ -28,13 +29,14 @@ logs/
 *.log
 debug.log*
 
-# Node / Frontend Artifacts
+# Node & Frontend Deployments (Vercel)
 node_modules/
+.vercel
+.turbo/
 npm-debug.log*
 yarn-debug.log*
-package-lock.json
 
-# IDE & Editor Configs
+# IDE, Editor & Agent Artifacts
 .vscode/
 .idea/
 *.swp
@@ -42,7 +44,11 @@ package-lock.json
 *~
 *.sublime-workspace
 *.sublime-project
+.agents/
+.system_generated/
+.history/
 
 # OS Generated
 .DS_Store
 Thumbs.db
+
