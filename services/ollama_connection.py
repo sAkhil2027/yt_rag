@@ -2,19 +2,34 @@
 import os
 from dotenv import load_dotenv
 
-from langfuse.openai import OpenAI
+try:
+    from openai import OpenAI
+except ImportError:
+    try:
+        from langfuse.openai import OpenAI
+    except ImportError:
+        OpenAI = None
 
 load_dotenv()
 
-# Configure the OpenAI client to use http://localhost:11434/v1 as base url
-client = OpenAI(
-    base_url = 'http://localhost:11434/v1',
-    api_key='ollama', # required, but unused
-)
+_client = None
+
+def get_ollama_client():
+    global _client
+    if _client is None:
+        if OpenAI is None:
+            raise RuntimeError("Neither 'openai' nor 'langfuse.openai' package is installed.")
+        _client = OpenAI(
+            base_url='http://localhost:11434/v1',
+            api_key='ollama',
+        )
+    return _client
+
 
 def llama3_model(prompt:str, chunk_list:list):
 
     try:
+        client = get_ollama_client()
         response = client.chat.completions.create(
             model="llama3.2",
             messages=[
