@@ -60,6 +60,8 @@ def groq_model_stream(prompt: str, chunk_list: list):
                                 "content": f"User question: {prompt}\n\nVideo context: {context_data}"
                             }
                         ],
+                        max_tokens=300,
+                        temperature=0.3,
                         stream=True
                     )
                     for chunk in stream:
