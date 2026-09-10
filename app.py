@@ -105,6 +105,17 @@ async def home():
     return {"message": "Welcome to YT Helper API"}
 
 
+@app.get("/config.js")
+async def get_config():
+    """Serves config.js directly so relative script paths load without 404."""
+    cfg_path = os.path.join(static_dir, "config.js")
+    if not os.path.exists(cfg_path):
+        cfg_path = os.path.join(os.path.dirname(__file__), "frontend", "config.js")
+    if os.path.exists(cfg_path):
+        return FileResponse(cfg_path, media_type="application/javascript", headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+    return {"message": "config.js not found"}
+
+
 @app.post("/youtube_url")
 @app.post("/yourube_url")
 async def text_extractor(data: userURL):
