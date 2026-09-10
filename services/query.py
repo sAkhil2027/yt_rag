@@ -29,10 +29,10 @@ def user_query(user_input: str, video_id: str) -> list:
         except TypeError:
             query_embeddings = get_gemini_embedding(user_input)[0]
 
-        # Query top 7 chunks
+        # Query top 5 most relevant chunks (optimized for high relevance and token savings)
         results = collection.query(
             query_embeddings=[query_embeddings],
-            n_results=7
+            n_results=5
         )
 
         raw_documents = results.get("documents", [[]])[0] if results else []
