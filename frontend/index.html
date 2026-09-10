@@ -1169,7 +1169,7 @@
           alert(data.message || "Failed to ingest video.");
         }
       } catch (err) {
-        alert("Error connecting to server: " + err + "\n\nTip: Check if your Render backend is awake via the 'API Config' button.");
+        alert("Error connecting to server. If your Render backend is waking up from sleep, please wait ~30 seconds and try again.");
       } finally {
         ingestBtn.disabled = false;
         ingestBtn.innerHTML = `<span>Ingest Video</span>`;
