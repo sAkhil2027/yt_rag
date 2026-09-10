@@ -812,9 +812,9 @@
       </div>
 
       <div style="display: flex; align-items: center; gap: 12px;">
-        <button id="apiSettingsBtn" class="api-settings-btn" onclick="openApiModal()" title="Configure Backend API URL">
+        <button id="apiSettingsBtn" class="api-settings-btn" onclick="handleApiBtnClick()" title="Backend Connection Status">
           <span id="apiStatusDot" class="status-indicator-dot"></span>
-          <span>API Config</span>
+          <span id="apiStatusText">Checking...</span>
         </button>
         <a id="docsLink" href="/docs" target="_blank" class="top-link">FastAPI Docs ↗</a>
       </div>
@@ -915,9 +915,11 @@
     async function checkBackendHealth() {
       const base = getApiBaseUrl();
       const dot = document.getElementById('apiStatusDot');
+      const text = document.getElementById('apiStatusText');
       const docsLink = document.getElementById('docsLink');
       if (docsLink) docsLink.href = `${base}/docs`;
       if (dot) dot.className = 'status-indicator-dot checking';
+      if (text) text.innerText = 'Connecting...';
 
       try {
         const controller = new AbortController();
@@ -927,18 +929,26 @@
 
         if (res.ok) {
           if (dot) dot.className = 'status-indicator-dot';
+          if (text) text.innerText = 'Connected';
           return true;
         } else {
           if (dot) dot.className = 'status-indicator-dot offline';
+          if (text) text.innerText = 'Offline';
           return false;
         }
       } catch (e) {
         if (dot) dot.className = 'status-indicator-dot offline';
-        // Auto-prompt on Vercel if not yet configured
-        if (window.location.hostname.includes('vercel.app') && !localStorage.getItem('YT_BACKEND_URL') && (!window.CONFIG || !window.CONFIG.API_BASE_URL)) {
-          setTimeout(() => openApiModal(true), 500);
-        }
+        if (text) text.innerText = 'Offline';
         return false;
+      }
+    }
+
+    function handleApiBtnClick() {
+      // If a production backend URL is hardcoded, simply refresh health check
+      if (window.CONFIG && window.CONFIG.API_BASE_URL && window.CONFIG.API_BASE_URL.trim()) {
+        checkBackendHealth();
+      } else {
+        openApiModal();
       }
     }
 
