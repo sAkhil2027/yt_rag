@@ -12,5 +12,5 @@
  *   API_BASE_URL: "https://yt-helper-api.onrender.com"
  */
 window.CONFIG = {
-  API_BASE_URL: "https://yt-rag-iztv.onrender.com/"
+  API_BASE_URL: "https://video-chatbot-ihi8.onrender.com/"
 };
