@@ -15,24 +15,33 @@ pinned: false
 ### Ask questions about any YouTube video without watching the entire video.
 
 <p>
-  <strong>YouTube URL → Transcript Extraction → 800-Char Chunking → Google Gemini Embeddings → ChromaDB → Context Retrieval → Groq Llama 3.3 70B</strong>
+  <strong>YouTube URL → Supadata / Invidious Extractor → Semantic Chunker → Google Gemini Embeddings → ChromaDB → Context Retrieval → Groq Cloud LPU Inference</strong>
 </p>
 
 <br>
 
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![Groq](https://img.shields.io/badge/Groq_Cloud-Llama_3.3_70B-F55036?style=for-the-badge&logo=meta&logoColor=white)
-![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-FF6F61?style=for-the-badge)
-![Google Gemini](https://img.shields.io/badge/Google_Gemini-Embeddings-4285F4?style=for-the-badge&logo=google&logoColor=white)
-![MCP](https://img.shields.io/badge/FastMCP-AI_Agent_Server-8A2BE2?style=for-the-badge)
+[![Live Backend](https://img.shields.io/badge/Render-Live_Backend-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://video-chatbot-ihi8.onrender.com/)
+[![Interactive Swagger](https://img.shields.io/badge/FastAPI-Swagger_Docs-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://video-chatbot-ihi8.onrender.com/docs)
+[![Vercel Frontend](https://img.shields.io/badge/Vercel-Live_Frontend-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://ytrag-seven.vercel.app/)
+[![FastMCP](https://img.shields.io/badge/FastMCP-AI_Agent_Server-8A2BE2?style=for-the-badge)](mcp_server.py)
 
 <br>
 
-![GitHub repo size](https://img.shields.io/github/repo-size/sAkhil2027/yt_video-rag-chatbot?style=flat-square)
-![GitHub last commit](https://img.shields.io/github/last-commit/sAkhil2027/yt_video-rag-chatbot?style=flat-square)
-![GitHub stars](https://img.shields.io/github/stars/sAkhil2027/yt_video-rag-chatbot?style=flat-square)
-![GitHub license](https://img.shields.io/github/license/sAkhil2027/yt_video-rag-chatbot?style=flat-square)
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=flat-square&logo=fastapi&logoColor=white)
+![Groq](https://img.shields.io/badge/Groq_Cloud-LPU_Inference-F55036?style=flat-square&logo=meta&logoColor=white)
+![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-FF6F61?style=flat-square)
+![Google Gemini](https://img.shields.io/badge/Google_Gemini-Embeddings-4285F4?style=flat-square&logo=google&logoColor=white)
+![Supadata](https://img.shields.io/badge/Supadata-Transcript_API-10B981?style=flat-square)
+
+<br>
+
+| Service | Live URL | Status |
+| :--- | :--- | :--- |
+| **Live Backend API** | [https://video-chatbot-ihi8.onrender.com/](https://video-chatbot-ihi8.onrender.com/) | Active |
+| **Interactive Swagger Docs** | [https://video-chatbot-ihi8.onrender.com/docs](https://video-chatbot-ihi8.onrender.com/docs) | Active |
+| **Health Check Endpoint** | [https://video-chatbot-ihi8.onrender.com/health](https://video-chatbot-ihi8.onrender.com/health) | Active |
+| **Live Web Frontend (Vercel)** | [https://ytrag-seven.vercel.app/](https://ytrag-seven.vercel.app/) | Connected |
 
 </div>
 
@@ -40,108 +49,186 @@ pinned: false
 
 ## ✨ Overview
 
-**YT Helper** is a high-performance Retrieval-Augmented Generation (RAG) system and interactive web application that enables users to chat with any YouTube video. 
+**YT Helper** is a high-performance Retrieval-Augmented Generation (RAG) system, REST API, and interactive glassmorphic web application that allows users and autonomous AI agents to query, summarize, and extract insights from any YouTube video in real time.
 
-By extracting 100% of available spoken transcript text, vectorizing it into a local **ChromaDB** database using **Google Gemini Embeddings**, and querying **Groq Cloud's Llama 3.3 70B** model, YT Helper provides instant, grounded answers with timestamps and topic breakdowns in seconds.
+By extracting transcripts through a resilient multi-tier pipeline (**Supadata API** $\rightarrow$ **YouTubeTranscriptApi** $\rightarrow$ **Invidious Mirrors** $\rightarrow$ **Direct Paste Fallback**), vectorizing text into **ChromaDB** using **Google Gemini Embeddings**, and performing streaming inference via **Groq Cloud LPU**, YT Helper generates grounded, factual answers in seconds with minimal token consumption.
 
 ```text
-🎥 YouTube Video URL
+🎥 YouTube Video URL / Text
        │
        ▼
-📝 Multi-Language Transcript Extractor (YouTubeTranscriptApi)
+📝 Multi-Tier Extraction Engine
+   ├── Tier 1: Supadata Transcript API (100% cloud bypass)
+   ├── Tier 2: YouTubeTranscriptApi (en, hi, es, fr, de)
+   ├── Tier 3: Decentralized Invidious Mirrors
+   └── Tier 4: Manual Direct Paste UI (/ingest_transcript)
        │
        ▼
-✂️ Semantic Chunker (800 chars / 150 overlap)
+✂️ Semantic Chunker (RecursiveCharacterTextSplitter: 800 chars / 150 overlap)
        │
        ▼
-🧠 Dense Vector Embeddings (gemini-embedding-001 / text-embedding-004)
+🧠 Dense Vector Embeddings (Google Gemini text-embedding-004 / gemini-embedding-001)
        │
        ▼
-🗄️ Persistent ChromaDB Vector Store
+🗄️ Persistent ChromaDB Vector Database (Named collections per Video ID)
        │
        ▼
-🔎 Cosine Similarity Search (Top 7 Chunks / 5,600 chars)
+🔎 Cosine Similarity Search (Top 5 Chunks / ~4,000 chars context)
        │
        ▼
-⚡ Groq Cloud LPU Inference Engine (Llama 3.3 70B)
+⚡ Groq Cloud LPU Inference Engine (Qwen 3.8 27B / GPT-OSS 120B / Llama 3.3)
        │
        ▼
-💬 Production Dark Glassmorphic Web UI & FastMCP Server
+💬 Real-Time Token Streaming (Web UI & FastMCP Protocol for AI Agents)
 ```
 
 ---
 
 ## 🚀 Key Features
 
-| Feature | Technology / Implementation | Description |
-| :--- | :--- | :--- |
-| **🎥 Full Transcript Ingestion** | `YouTubeTranscriptApi` | Downloads 100% of spoken transcript text across manual and auto-generated tracks (`en`, `hi`, `es`, `fr`, `de`). |
-| **✂️ Optimal RAG Chunking** | `RecursiveCharacterTextSplitter` | Splits long transcripts into 800-character semantic chunks with 150-character overlap to preserve sentence context. |
-| **🧠 Dense Vector Embeddings** | `Google Gemini Embeddings` | Generates high-dimension semantic vectors via Google Gemini API (`gemini-embedding-001` / `text-embedding-004`). |
-| **🗄️ Persistent Vector Store** | `ChromaDB` | Stores indexed vector chunks locally under named collections per YouTube video ID. |
-| **🔎 Rich Context Retrieval** | Cosine Similarity Search | Retrieves the top **7 most relevant chunks (~5,600 characters)** matching user questions. |
-| **⚡ High-Speed LLM Inference** | `Groq Cloud API` | Powered by Groq's ultra-fast LPU engine running **`llama-3.3-70b-versatile`**. |
-| **🖥️ Interactive Chatbot UI** | HTML5 / Vanilla CSS / JS | Built-in dark glassmorphic web interface with prompt suggestion cards, syntax highlighting, and copy tools. |
-| **🔌 FastMCP Server Integration** | `FastMCP` Protocol | Exposes `ingest_youtube_video` and `query_youtube_video` tools for AI agents (Claude Desktop, Cursor, Antigravity). |
+- **🛡️ Anti-Block Transcript Pipeline**: Combines Supadata API, local extraction, public mirrors, and manual transcript pasting to eliminate datacenter IP blocks on Render/AWS.
+- **⚡ Ultra-Fast Groq Cloud Inference**: Delivers streaming token generation powered by active verified models (`qwen/qwen3.8-27b`, `openai/gpt-oss-120b`, `llama-3.3-70b-versatile`) with automatic quota failover.
+- **📉 Optimized Token Economics**: Responses are strictly capped to ~300 tokens (`max_tokens=300`) with top-5 chunk retrieval, cutting prompt token overhead by 35% and keeping costs under ~$0.001 per query.
+- **🧠 Google Gemini Dense Vectors**: Uses official Google GenAI SDK (`text-embedding-004` / `gemini-embedding-001`) with task-specific optimization (`RETRIEVAL_DOCUMENT` vs `RETRIEVAL_QUERY`).
+- **🗄️ ChromaDB Local Vector Store**: Persists document vectors into named SQLite collections per video (`vid_{video_id}`).
+- **🖥️ Dark Glassmorphic Web UI**: Vanilla CSS single-page interface with real-time SSE token streaming, suggestion chips, live connection status indicators, and one-click copy buttons.
+- **🔌 Model Context Protocol (MCP)**: Native FastMCP server implementation (`mcp_server.py`) for AI agents in Cursor, Claude Desktop, and Antigravity.
+- **💓 Built-in Free-Tier Keep-Alive**: Background asynchronous heartbeat worker pings `/health` every 12 minutes if `RENDER_EXTERNAL_URL` is set, preventing Render instances from sleeping.
 
 ---
 
-## 🏗️ Project Architecture
+## 🏗️ Project Architecture & File Structure
 
 ```text
 Tube-AI-API/
-├── app.py                     # Main FastAPI server & REST API endpoints
-├── mcp_server.py              # FastMCP server for AI agent integrations
+├── app.py                     # FastAPI REST API, streaming endpoints, and keep-alive worker
+├── mcp_server.py              # FastMCP server exposing ingest & query tools for AI IDEs
 ├── config.py                  # Environment variable configuration loader
-├── requirements.txt           # Python dependencies manifest
-├── render.yaml                # Render Blueprint deployment specification
-├── vercel.json                # Vercel root deployment routing
-├── DEPLOYMENT.md              # Step-by-step Render & Vercel deployment guide
-├── README.md                  # Complete project documentation
+├── requirements.txt           # Python dependency specifications
+├── render.yaml                # Render Blueprint infrastructure-as-code specification
+├── vercel.json                # Vercel root routing and rewrite rules
+├── Dockerfile                 # Multi-cloud container manifest (Hugging Face / Cloud Run)
+├── DEPLOYMENT.md              # Detailed step-by-step production deployment guide
+├── token_calculation.md       # In-depth mathematical token and cost analysis
+├── README.md                  # Comprehensive project documentation
 ├── .env.example               # Template environment variables
-├── .gitignore                 # Git security and exclusion rules
+├── .gitignore                 # Exclusion rules for secrets, DBs, and virtualenvs
 │
-├── services/                  # Backend RAG Core Pipeline Services
+├── services/                  # Backend RAG Core Services
 │   ├── __init__.py
-│   ├── chunk_extractor.py     # YouTube transcript extraction service
-│   ├── embadding.py           # Text splitter & Gemini/ChromaDB vector manager
-│   ├── query.py               # Vector similarity search engine
-│   └── groq_connection.py     # Groq Cloud API LLM service
+│   ├── chunk_extractor.py     # Multi-tier YouTube extraction (Supadata + Invidious + local)
+│   ├── embadding.py           # LangChain text splitter, Gemini embeddings & ChromaDB storage
+│   ├── query.py               # Vector similarity search engine (top 5 chunks)
+│   ├── groq_connection.py     # Groq API streaming inference, model rotation & token cap
+│   └── ollama_connection.py   # Local offline Ollama backup connection
 │
-├── frontend/                  # Standalone Frontend (Vercel Ready)
-│   ├── index.html             # Responsive dark-mode Chatbot UI
-│   ├── config.js              # Frontend API configuration
+├── frontend/                  # Standalone Vercel-Ready Frontend
+│   ├── index.html             # Responsive dark-mode Chatbot UI (streaming text reader)
+│   ├── config.js              # Production API backend URL configuration
 │   └── vercel.json            # Vercel rewrite configuration
 │
-└── static/                    # FastAPI Embedded Static UI
-    ├── index.html             # Embedded Chatbot UI
-    └── config.js              # Embedded API config
+└── static/                    # Embedded Static UI for FastAPI
+    ├── index.html             # Exact mirror of frontend/index.html served at GET /
+    └── config.js              # Mirrored backend configuration
 ```
 
 ---
 
-## 🚀 Cloud Deployment
+## 📡 API Endpoints Reference
 
-Ready to deploy to production? Check out our complete step-by-step guide:
-👉 **[DEPLOYMENT.md](DEPLOYMENT.md)**
-* **Backend on Render**: One-click free deployment via `render.yaml`.
-* **Frontend on Vercel**: Zero-config deployment from `/frontend` or repository root.
+### 1. Ingest YouTube Video by URL
+Extracts transcript, chunks text, generates embeddings, and saves into ChromaDB.
+
+* **URL**: `POST /youtube_url`
+* **Headers**: `Content-Type: application/json`
+* **Body**:
+  ```json
+  {
+    "url": "https://www.youtube.com/watch?v=VNaj4yhqtQg"
+  }
+  ```
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "message": "[SUCCESS] 13 chunks stored successfully using Gemini Embeddings!",
+    "video_id": "VNaj4yhqtQg",
+    "total_chunks": 13
+  }
+  ```
 
 ---
 
-## 🛠️ Installation & Setup
+### 2. Ask Question (Real-Time Streaming)
+Streams answer tokens incrementally using Server-Sent text/plain streaming.
 
-### 1. Prerequisites
-* Python **3.11** or higher
-* Git
+* **URL**: `POST /query_stream`
+* **Headers**: `Content-Type: application/json`
+* **Body**:
+  ```json
+  {
+    "query": "What are the main key takeaways from this video?",
+    "video_id": "VNaj4yhqtQg"
+  }
+  ```
+* **Response**: Real-time token-by-token stream.
 
-### 2. Clone the Repository
+---
+
+### 3. Ask Question (Synchronous Non-Streaming)
+* **URL**: `POST /query`
+* **Headers**: `Content-Type: application/json`
+* **Body**:
+  ```json
+  {
+    "query": "Summarize the conclusion of this video.",
+    "video_id": "VNaj4yhqtQg"
+  }
+  ```
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "message": "The video concludes by emphasizing..."
+  }
+  ```
+
+---
+
+### 4. Direct Transcript Ingestion (Bypass Fallback)
+Ingests raw transcript text directly, bypassing YouTube network requests entirely.
+
+* **URL**: `POST /ingest_transcript`
+* **Headers**: `Content-Type: application/json`
+* **Body**:
+  ```json
+  {
+    "video_id": "VNaj4yhqtQg",
+    "text": "Full copied transcript text goes here..."
+  }
+  ```
+
+---
+
+### 5. Health Check Endpoint
+* **URL**: `GET /health`
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "status": "healthy",
+    "service": "YT Helper"
+  }
+  ```
+
+---
+
+## 🛠️ Local Installation & Development
+
+### 1. Clone the Repository
 ```bash
-git clone https://github.com/sAkhil2027/yt_video-rag-chatbot.git
-cd yt_video-rag-chatbot
+git clone https://github.com/sAkhil2027/yt_rag.git
+cd yt_rag
 ```
 
-### 3. Create & Activate Virtual Environment
+### 2. Create and Activate Virtual Environment
 ```bash
 # Windows
 python -m venv .venv
@@ -152,111 +239,65 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 4. Install Dependencies
+### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Configure Environment Variables
+### 4. Configure Environment Variables
 Copy `.env.example` to `.env`:
 ```env
-# Groq Cloud API Key (Required for Llama 3.3 70B inference)
+# Required for Groq Cloud inference
 GROQ_API_KEY=your_groq_api_key_here
 
-# Google Gemini API Key (Required for vector embeddings)
+# Required for Google Gemini embeddings
 GOOGLE_API_KEY=your_google_api_key_here
+
+# Optional: Supadata Transcript API (recommended for cloud servers)
+SUPADATA_API_KEY=your_supadata_api_key_here
 ```
-> *(Get your free keys at [Groq Console](https://console.groq.com/) and [Google AI Studio](https://aistudio.google.com/))*
+
+### 5. Run the Local Server
+```bash
+python -m uvicorn app:app --reload --port 7860
+```
+Open **`http://localhost:7860`** in your browser to start chatting!
 
 ---
 
-## 🏃 Running the Application
+## 🔌 Model Context Protocol (MCP) Server
 
-### Option 1: Web Application Server (Recommended)
-Run the FastAPI application server:
-```bash
-python app.py
-```
-Or using uvicorn reload mode:
-```bash
-python -m uvicorn app:app --reload
-```
+YT Helper includes a built-in **FastMCP** server to let AI assistants (Cursor, Claude Desktop, Antigravity) ingest and query YouTube videos directly inside coding environments.
 
-Open your browser and navigate to:
-👉 **`http://127.0.0.1:8000/`**
-
----
-
-### Option 2: Model Context Protocol (MCP) Server
-To connect YT Helper directly to **Claude Desktop**, **Cursor**, or **Antigravity**:
-
+### Run MCP Server:
 ```bash
 python mcp_server.py
 ```
 
-Test interactively via MCP Inspector:
-```bash
-npx @modelcontextprotocol/inspector python mcp_server.py
+### Claude Desktop Configuration:
+Add to your `claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "yt-helper": {
+      "command": "python",
+      "args": ["f:/path-to-repo/mcp_server.py"]
+    }
+  }
+}
 ```
 
 ---
 
-## 📡 API Endpoints Reference
+## 🚀 Cloud Deployment
 
-### 1. Ingest YouTube Video
-* **Endpoint**: `POST /youtube_url`
-* **Request Body**:
-  ```json
-  {
-    "url": "https://www.youtube.com/watch?v=A8s-KxHUi3I"
-  }
-  ```
-* **Response**:
-  ```json
-  {
-    "message": "[SUCCESS] 9 chunks stored successfully across complete video transcript!",
-    "video_id": "A8s-KxHUi3I",
-    "total_chunks": 9
-  }
-  ```
+For a detailed step-by-step guide, check out **[DEPLOYMENT.md](DEPLOYMENT.md)**.
 
----
-
-### 2. Ask Question About Video
-* **Endpoint**: `POST /query`
-* **Request Body**:
-  ```json
-  {
-    "query": "What are the main actionable takeaways from this video?",
-    "video_id": "A8s-KxHUi3I"
-  }
-  ```
-* **Response**:
-  ```json
-  {
-    "message": "Based on the video transcript, here are the key takeaways:\n\n1. **Core Concept**: ..."
-  }
-  ```
-
----
-
-### 3. Interactive Web UI
-* **Endpoint**: `GET /`
-* Returns the interactive single-page Chatbot frontend (`static/index.html`).
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-1. Fork the Repository.
-2. Create a Feature Branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your changes (`git commit -m 'feat: Add AmazingFeature'`).
-4. Push to the branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
+* **Backend on Render**: Deploys automatically via `render.yaml` with auto keep-alive.
+* **Frontend on Vercel**: Connects directly to `https://video-chatbot-ihi8.onrender.com/` without requiring visitor configuration.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is open source and available under the [MIT License](LICENSE).
