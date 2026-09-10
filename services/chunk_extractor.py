@@ -92,12 +92,56 @@ def fetch_via_invidious(video_id: str) -> str:
     return ""
 
 
+def fetch_via_supadata(video_id: str) -> str:
+    """
+    Fetches transcript using Supadata API (https://supadata.ai).
+    Bypasses YouTube IP blocks with 100% reliability and supports Whisper AI fallback.
+    """
+    api_key = os.getenv("SUPADATA_API_KEY")
+    if not api_key:
+        return ""
+
+    try:
+        query_url = f"https://api.supadata.ai/v1/youtube/transcript?url=https://www.youtube.com/watch?v={video_id}&text=true"
+        req = urllib.request.Request(
+            query_url,
+            headers={
+                "x-api-key": api_key,
+                "User-Agent": "YT-Helper/1.0"
+            }
+        )
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            content = data.get("content")
+            if isinstance(content, str) and len(content.strip()) > 30:
+                print(f"[SUCCESS] Extracted transcript via Supadata API for video_id: {video_id} ({len(content.split())} words)")
+                return content.strip()
+            elif isinstance(content, list):
+                text_parts = [item.get("text", "") for item in content if isinstance(item, dict) and item.get("text")]
+                joined = " ".join(text_parts).strip()
+                if len(joined) > 30:
+                    print(f"[SUCCESS] Extracted transcript via Supadata API for video_id: {video_id} ({len(joined.split())} words)")
+                    return joined
+    except Exception as e:
+        print(f"[WARN] Supadata API extraction attempt failed: {e}")
+    return ""
+
+
 def chunk_extractor(url: str) -> dict:
     video_id = extract_video_id(url)
-    api = get_transcript_api()
     target_languages = ['en', 'hi', 'es', 'fr', 'de']
 
-    # Step 1: Attempt standard YouTubeTranscriptApi extraction
+    # Step 1: If SUPADATA_API_KEY is configured, use Supadata directly for 100% reliable bypass
+    supadata_text = fetch_via_supadata(video_id)
+    if supadata_text:
+        return {
+            "text": supadata_text,
+            "video_id": video_id
+        }
+
+    api = get_transcript_api()
+
+    # Step 2: Attempt standard YouTubeTranscriptApi extraction
     try:
         try:
             transcript_list = api.list(video_id)
@@ -123,9 +167,17 @@ def chunk_extractor(url: str) -> dict:
         }
 
     except (IpBlocked, RequestBlocked) as ip_err:
-        print(f"[WARN] YouTube direct IP blocked ({type(ip_err).__name__}). Attempting mirror failover...")
+        print(f"[WARN] YouTube direct IP blocked ({type(ip_err).__name__}). Attempting Supadata & mirror failovers...")
         
-        # Step 2: Zero-proxy failover via public mirrors
+        # Step 3: Supadata failover
+        supadata_text = fetch_via_supadata(video_id)
+        if supadata_text:
+            return {
+                "text": supadata_text,
+                "video_id": video_id
+            }
+
+        # Step 4: Zero-proxy failover via public mirrors
         mirror_text = fetch_via_invidious(video_id)
         if mirror_text:
             return {
@@ -133,14 +185,21 @@ def chunk_extractor(url: str) -> dict:
                 "video_id": video_id
             }
 
-        # Step 3: If mirrors also fail, provide actionable error for proxy or client-side fallback
+        # Step 5: If all automatic methods fail, provide actionable guidance
         raise RuntimeError(
             "YouTube has blocked this cloud server's IP address. "
-            "To resolve this on Render, set YOUTUBE_PROXY in your dashboard or use client-side ingestion."
+            "To resolve this on Render, add SUPADATA_API_KEY or YOUTUBE_PROXY in your dashboard."
         ) from ip_err
 
     except Exception as e:
-        # For non-IP block failures, also attempt mirror before failing
+        # For non-IP block failures, also attempt Supadata & mirror before failing
+        supadata_text = fetch_via_supadata(video_id)
+        if supadata_text:
+            return {
+                "text": supadata_text,
+                "video_id": video_id
+            }
+
         mirror_text = fetch_via_invidious(video_id)
         if mirror_text:
             return {
