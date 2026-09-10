@@ -21,10 +21,12 @@ def groq_model_stream(prompt: str, chunk_list: list):
     
     # Active verified models across distinct rate limit buckets on Groq Cloud
     candidate_models = [
-        "llama-3.3-70b-versatile",  # Highest quality reasoning
-        "llama-3.1-8b-instant",     # 10x higher TPM limit (14,400 TPM)
-        "mixtral-8x7b-32768",       # Separate MoE bucket
-        "gemma2-9b-it"              # Google architecture on Groq
+        "qwen/qwen3.8-27b",         # High-speed active model on Groq Cloud
+        "openai/gpt-oss-120b",      # High-quality reasoning model
+        "openai/gpt-oss-20b",       # Fast lightweight model
+        "llama-3.3-70b-versatile",  # Llama 3.3 (when available)
+        "llama-3.1-8b-instant",     # Llama 3.1 instant (when available)
+        "groq/compound-mini"        # Groq compound fallback
     ]
 
     # Context attempts: full context first, then trimmed context if 429 hit
