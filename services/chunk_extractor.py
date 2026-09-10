@@ -43,9 +43,11 @@ def fetch_via_invidious(video_id: str) -> str:
     """
     mirror_instances = [
         "https://inv.nadeko.net",
+        "https://invidious.f5.si",
         "https://invidious.nerdvpn.de",
-        "https://yewtu.be",
-        "https://invidious.jing.rocks"
+        "https://yt.chocolatemoo53.com",
+        "https://invidious.tiekoetter.com",
+        "https://invidious.privacydev.net"
     ]
 
     for base_url in mirror_instances:

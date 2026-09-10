@@ -794,6 +794,19 @@
         <span>Ingest Video</span>
       </button>
 
+      <div style="text-align: center; margin-top: -4px;">
+        <button type="button" onclick="toggleDirectTranscript()" style="background:none; border:none; color:#c084fc; font-size:0.78rem; font-weight:600; cursor:pointer; text-decoration:underline;">
+          📝 Paste transcript manually
+        </button>
+      </div>
+
+      <div id="manualTranscriptBox" style="display: none; flex-direction: column; gap: 8px;">
+        <textarea id="manualTranscriptInput" class="input-field" style="height: 90px; padding: 8px; font-size: 0.8rem; resize: vertical;" placeholder="Paste YouTube transcript here (YouTube -> ...More -> Show transcript)..."></textarea>
+        <button id="manualIngestBtn" class="btn-action" style="height: 36px; font-size: 0.82rem;" onclick="ingestManualTranscript()">
+          <span>Save & Ingest Text</span>
+        </button>
+      </div>
+
       <div id="videoCard" class="video-card">
         <img id="thumbImg" src="" alt="Thumbnail" />
         <div class="video-id-badge">Active Video ID: <strong id="videoIdLabel" style="color: #c084fc;">None</strong></div>
@@ -1086,6 +1099,57 @@
       appendMessage('bot', `✅ **Video Ingested Successfully!**\n\nYouTube Video ID: \`${activeVideoId}\`\nVector embeddings generated & stored in ChromaDB. Ask your first question below!`);
     }
 
+    function toggleDirectTranscript() {
+      const box = document.getElementById('manualTranscriptBox');
+      box.style.display = (box.style.display === 'none' || !box.style.display) ? 'flex' : 'none';
+    }
+
+    async function ingestManualTranscript() {
+      const urlInput = document.getElementById('urlInput');
+      const textInput = document.getElementById('manualTranscriptInput');
+      const btn = document.getElementById('manualIngestBtn');
+      const url = urlInput.value.trim();
+      const text = textInput.value.trim();
+
+      if (!url) {
+        alert("Please enter the YouTube URL in the box above so we can identify the video.");
+        return;
+      }
+      if (!text || text.length < 30) {
+        alert("Please paste the transcript text (at least 30 characters).");
+        return;
+      }
+
+      const videoId = extractVideoIdClient(url);
+      if (!videoId) {
+        alert("Could not extract a valid YouTube Video ID from the URL.");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<div class="spinner"></div> <span>Ingesting Text...</span>`;
+
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/ingest_transcript`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ video_id: videoId, text: text })
+        });
+        const data = await response.json();
+        if (data.video_id) {
+          handleIngestSuccess(data.video_id);
+          document.getElementById('manualTranscriptBox').style.display = 'none';
+        } else {
+          alert(data.message || "Failed to ingest transcript.");
+        }
+      } catch (e) {
+        alert("Error ingesting transcript: " + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Save & Ingest Text</span>`;
+      }
+    }
+
     async function attemptClientSideIngest(url) {
       const videoId = extractVideoIdClient(url);
       if (!videoId) return false;
@@ -1160,11 +1224,8 @@
         if (data.video_id) {
           handleIngestSuccess(data.video_id);
         } else if (data.message && (data.message.includes("blocked") || data.message.includes("IP"))) {
-          ingestBtn.innerHTML = `<div class="spinner"></div> <span>Retrying via browser...</span>`;
-          const recovered = await attemptClientSideIngest(url);
-          if (!recovered) {
-            alert(data.message);
-          }
+          document.getElementById('manualTranscriptBox').style.display = 'flex';
+          alert("YouTube has blocked the datacenter IP of this free cloud server.\n\nTo bypass this easily:\n1. Open the video on YouTube\n2. Click '...More' -> 'Show transcript'\n3. Copy the text and paste it into the 'Paste transcript manually' box below, then click 'Save & Ingest Text'!");
         } else {
           alert(data.message || "Failed to ingest video.");
         }
