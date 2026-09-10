@@ -1,13 +1,15 @@
 /**
- * YT Helper - Frontend Configuration
+ * YT Helper - Production Backend Configuration
  * 
- * When deploying to Vercel:
- * Set API_BASE_URL to your deployed Render service URL.
+ * Step 1: Deploy your backend to Render.
+ * Step 2: Paste your deployed Render service URL below.
+ * 
+ * Once set here:
+ * - All visitors connect directly and automatically.
+ * - No user is EVER asked to configure or enter any URL.
+ * 
  * Example:
  *   API_BASE_URL: "https://yt-helper-api.onrender.com"
- * 
- * If left empty (""), the app will use window.location.origin
- * or the custom URL you set via the in-app "⚙️ API Config" button.
  */
 window.CONFIG = {
   API_BASE_URL: ""
