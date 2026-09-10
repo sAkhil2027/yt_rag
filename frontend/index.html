@@ -894,14 +894,15 @@
 
     // Resolve Backend API Base URL
     function getApiBaseUrl() {
-      // 1. User configured custom URL in localStorage
-      const saved = localStorage.getItem('YT_BACKEND_URL');
-      if (saved && saved.trim()) return saved.trim().replace(/\/+$/, '');
-
-      // 2. config.js window.CONFIG
+      // 1. Hardcoded production URL in config.js (Highest Priority)
       if (window.CONFIG && window.CONFIG.API_BASE_URL && window.CONFIG.API_BASE_URL.trim()) {
         return window.CONFIG.API_BASE_URL.trim().replace(/\/+$/, '');
       }
+
+      // 2. User/Developer configured custom URL in localStorage (Fallback/Local Dev)
+      const saved = localStorage.getItem('YT_BACKEND_URL');
+      if (saved && saved.trim()) return saved.trim().replace(/\/+$/, '');
+
       if (window.ENV_BACKEND_URL && window.ENV_BACKEND_URL.trim()) {
         return window.ENV_BACKEND_URL.trim().replace(/\/+$/, '');
       }
